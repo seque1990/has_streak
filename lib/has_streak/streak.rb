@@ -19,20 +19,32 @@ module HasStreak
     end
 
     def determine_consecutive_days
-      streak = first_day_in_collection_is_today? ? 1 : 0
-      days.each_with_index do |day, index|
-        break unless first_day_in_collection_is_today?
-        if days[index+1] == day.yesterday
-          streak += 1
-        else
-          break
-        end
+      if first_day_in_collection_is_today? || first_day_in_collection_is_yesterday?
+        streak = check_streak(1)
+      else
+        streak = 0
       end
       streak
     end
 
+    def check_streak(streak)
+      streak_count = streak
+      days.each_with_index do |day, index|
+        if days[index+1] == day.yesterday
+          streak_count += 1
+        else
+          break
+        end
+      end
+      streak_count
+    end
+
     def first_day_in_collection_is_today?
       days.first == Time.current.in_time_zone(instance.time_zone).to_date
+    end
+
+    def first_day_in_collection_is_yesterday?
+      days.first == Time.current.in_time_zone(instance.time_zone).to_date.yesterday
     end
   end
 end
