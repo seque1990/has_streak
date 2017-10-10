@@ -14,7 +14,8 @@ module HasStreak
     attr_reader :association, :instance
 
     def days
-      @days ||= instance.send(association).order("created_at DESC").pluck(:created_at).map(&:to_date).uniq
+      array = instance.send(association).order("created_at DESC").pluck(:created_at)
+      @days ||= array.map { |date| date.in_time_zone(instance.time_zone) }.map(&:to_date).uniq
     end
 
     def determine_consecutive_days
@@ -31,7 +32,7 @@ module HasStreak
     end
 
     def first_day_in_collection_is_today?
-      days.first == Date.current
+      days.first == Time.current.in_time_zone(instance.time_zone).to_date
     end
   end
 end
